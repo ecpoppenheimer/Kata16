@@ -1,0 +1,48 @@
+The intent of this challenge is to produce a system that can handle and process a large set of rules.  IMO OOP makes
+sense for this problem, as it pretty clearly defines different classes of payment with different rules, some of which
+overlap and interact.  All of the given rules would be very easy to implement this way.  However, the real intent of
+this challenge has more to do with producing a system that is easy to expand and maintain than actually implementing the
+given rules, and so it will be important to address the ways that complicated inheritance systems can lead to
+common pitfalls and problems.  After thinking through the situation a bit, I think the best solution isn't to try to
+engineer some fancy complicated system, but rather to clearly define a system of coding guidelines and best practices to
+implement all the rules in our system, and to rely on discipline and adherence to these guidelines to avoid generating
+bugs during future development.  Python is powerful, but not very secure by design.  It is difficult to force a user
+into writing good, safe, non-conflicting code, but it is possible to provide guides and conventions to avoid writing
+problematic code.
+
+I think it should be straightforward to make a system that can handle most reasonable rules such as those outlined in
+the challenge text.  If rules ever get so complicated as to have non-trivial interdependencies, then I don't know of a
+good general solution.  If this happens then I am just going to have to recommend inheriting fewer layers and writing
+most or all of the processing code in a single payment type.
+
+So, I am going to develop a base class for a payment which will be used to derive additional classes for different kinds
+of payments that will ultimately implement all our business rules.  A payment will collect and store whatever
+information is necessary, and also include the code implementing the rules.  But most importantly, I will write
+guidelines for inheriting from this class that seek to standardize the process and hopefully avoid common OOP bugs,
+such as mangling base class attributes, or issues with order of operations.  As an important step, I will try to guide
+usage to avoid inconsistent MRO issues by ensuring that the order of inheritance for multiply inheriting subclasses does
+not matter.  While I expect the inheritance hierarchy to get moderately complicated, I don't expect circular
+dependencies to arise, and by ensuring that processing steps occur in a guided sequence of steps and by asking to avoid
+overriding sub-class data members, I expect it to always be possible to use an arbitrary inheritance order and so avoid
+situations where the MRO cannot be resolved.  Or at least, if this does happen, it should be fixable by swapping the
+order of inheritance, and this swap shouldn't be able to affect functionality in any way, as everything is designed to
+be as order-agnostic as possible.  This will be accomplished by establishing a series of steps in which processing will
+occur, and to limit the constructor to just setting and collecting various data/parameters.  The operations of
+processing the payment will be carried out in a series of steps so that we can establish a clear method for ensuring
+some code runs before/after other code in a reliable fashion.  Ordering code is trivial of course if everything were
+handled by a single class, but since the expectation is that different products will get built out of a rather
+complicated set of derived classes, different bits of code will be spread out among these different classes, which makes
+it harder to understand at a glance when everything will actually be called.
+
+I am also going to include a database class to hold various common parameters and bits of data as keeping common bits of
+data on something like a product price in a single location will make the system more maintainable than having them
+spread throughout a mess of class definitions.  Any real business ERP system would be built around some manner of
+database, probably an SQL database.  For the purposes of this project I will just fake it with a class and some
+dictionaries.  I am going to label each payment with a unique ID, and I will let the database handle assigning these, as
+a real ERP system is going to want to archive each processed payment, and will surely want to have some manner of
+assigning unique IDs already.
+
+I will also add a processor object to process the payments.  In a real ERP system this would be some sort of complicated
+service that would handle queueing and interruptions and all manner of similar problems, though for this project I am
+just going to fake it with a basic class that calls the correct steps on each payment in order and makes a bunch of
+print statements showing what it is doing.
