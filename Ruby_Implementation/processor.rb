@@ -1,48 +1,46 @@
-"""
-Define an object that mimics an ERP system.  The processor will accept a completed payment object and run it,
-during the course of which the payment will call various methods on the processor to actually accomplish work.  Since
-this is just a demo, the processor will only print statements showing what actions it is taking throughout the course
-of processing a payment.
+# Define an object that mimics an ERP system.  The processor will accept a completed payment object and run it,
+# during the course of which the payment will call various methods on the processor to actually accomplish work.  Since
+# this is just a demo, the processor will only print statements showing what actions it is taking throughout the course
+# of processing a payment.
 
-Implement new functions within the processor as necessary to satisfy processing requirements.  Note in the docstring
-for each process operation which attributes each operation will need to access, to help determine compatibility.
-"""
+# Implement new functions within the processor as necessary to satisfy processing requirements.  Note in the docstring
+# for each process operation which attributes each operation will need to access, to help determine compatibility.
 
-from payment import Payment
+class Processor
+    def initialize(database)
+        # :param database: A reference to the previously created system database.
+        @database = database
+    end
 
-class Processor:
-    def __init__(self, database):
-        """
-        :param database: A reference to the previously created system database.
-        """
-        self.database = database
-
-    def process_payments(self, arg):
-        """
-        Process either a single payment, or an iterable of several
-        :param arg: Either a single Payment object, or an iterable of such objects
-        :return: Either a list of payments that failed, if a list was given, or a single payment that failed,
-        if only one was provided.  May be an empty list or none if there were no failures.
-        """
-        if isinstance(arg, Payment):
+    def process_payments(arg)
+        # Process either a single payment, or an iterable of several
+        # :param arg: Either a single Payment object, or an iterable of such objects
+        # :return: Either a list of payments that failed, if a list was given, or a single payment that failed,
+        # if only one was provided.  May be an empty list or none if there were no failures.
+        if arg.respond_to? :process_payment
             return self.process_payment(arg)
-        else:
+        else
             failed_orders = []
-            for each in arg:
+            for each in arg
                 result = self.process_payment(each)
-                if result is not None:
-                    failed_orders.append(result)
+                failed_orders << result unless result is nil
+            end
             return failed_orders
+        end
+    end
 
-    def process_payment(self, payment):
-        """
-        Process a single payment
-        :param payment: The payment to process
-        :return: the payment, if processing failed, or None if it succeeded
-        """
+    def process_payment(self, payment)
+        # Process a single payment
+        # :param payment: The payment to process
+        # :return: the payment, if processing failed, or None if it succeeded
         failed_order = None
+        puts "Beginning processing of payment of %:0.2f with id# %i." % [payment.value, payment.payment_id]
 
-        print(f"Beginning processing of payment of ${payment.value:.2f} with id# {payment.payment_id}.")
+    end
+end
+
+=begin
+
         if payment.payment_id in self.database.processed_orders.keys():
             print("Processor received payment with duplicate ID - Not allowed.")
         try:
@@ -62,6 +60,7 @@ class Processor:
 
 
         return failed_order
+    end
 
     def generate_packing_slip(self, payment):
         """
@@ -144,5 +143,5 @@ class Processor:
             ---
         """
         print(f" | Including add-on to packing slip: {add_on}")
-
-
+end
+=end
